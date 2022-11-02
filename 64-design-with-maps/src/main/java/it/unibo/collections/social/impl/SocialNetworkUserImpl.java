@@ -37,6 +37,8 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      * a generic-type Map:  think of what type of keys and values would best suit the requirements
      */
 
+     final Map<String, Set<U>> userFriends;
+
     /*
      * [CONSTRUCTORS]
      *
@@ -62,12 +64,17 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      *            application
      */
     public SocialNetworkUserImpl(final String name, final String surname, final String user, final int userAge) {
-        super(null, null, null, 0);
+        super(name, surname, user, userAge);
+        this.userFriends = new HashMap<>();
     }
 
     /*
      * 2) Define a further constructor where the age defaults to -1
      */
+    public SocialNetworkUserImpl(final String name, final String surname, final String user) {
+        super(name, surname, user, -1);
+        this.userFriends = new HashMap<>();
+    }
 
     /*
      * [METHODS]
@@ -76,7 +83,11 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      */
     @Override
     public boolean addFollowedUser(final String circle, final U user) {
-        return false;
+        if (this.userFriends.containsKey(circle) == false) {
+            Set<U> circleFriends = new HashSet<>();
+            this.userFriends.put(circle, circleFriends);
+        }
+        return (this.userFriends.get(circle)).add(user);
     }
 
     /**
@@ -86,11 +97,19 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      */
     @Override
     public Collection<U> getFollowedUsersInGroup(final String groupName) {
-        return null;
+        Collection<U> followedUsers = this.userFriends.get(groupName);
+        if (followedUsers == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(followedUsers);
     }
 
     @Override
     public List<U> getFollowedUsers() {
-        return null;
+        List<U> followedUsers = new ArrayList<>();
+        for (Set<U> friends: this.userFriends.values()) {
+            followedUsers.addAll(friends);
+        }
+        return followedUsers;
     }
 }
