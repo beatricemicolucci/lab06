@@ -84,6 +84,7 @@ public class GraphImpl<N> implements Graph<N> {
         final Map<N, N> predecessors = new HashMap<>();
         final List<N> path = new LinkedList<>();
         final Set<N> visited = new HashSet<>();
+        boolean pathFound = false;
         N curr_node;
 
         visited.add(source);
@@ -91,12 +92,13 @@ public class GraphImpl<N> implements Graph<N> {
         predecessors.put(source, null);
 
         while (!queue.isEmpty()) {
-            curr_node = queue.remove();
+            curr_node = queue.poll();
             if (curr_node.equals(target)) {
+                pathFound = true;
                 break;
             }
             for (final N n : edges.get(curr_node)) {
-                if (!visited.contains(n)) {
+                if (visited.contains(n) == false) {
                     visited.add(n);
                     predecessors.put(n, curr_node);
                     queue.add(n);
@@ -104,17 +106,17 @@ public class GraphImpl<N> implements Graph<N> {
             }
         }
 
-        curr_node = target;
-
-        while(predecessors.get(curr_node) != null) {
-            path.add(curr_node);
-            curr_node = predecessors.get(curr_node);
+        if (pathFound) {
+            curr_node = target;
+            while(curr_node != null) {
+                path.add(curr_node);
+                curr_node = predecessors.get(curr_node);
+            }
+            Collections.reverse(path);
+            return path;
         }
-
-        path.add(source);
-        Collections.reverse(path);
-
-        return path;
+        
+        return null;
 
     }
     
